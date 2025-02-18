@@ -14,12 +14,13 @@ export const register = async (req, res) => {
         const hashedPass = await bcrypt.hash(user.password, 15);
         user.password = hashedPass;
         const newUser = await createRecord(User, user);
-        console.log('new user', newUser);
+        // console.log('new user', newUser);
 
         const token = newUser.createJWT();
-
+        const userResource = { ...newUser.toObject() };
+        delete userResource.password;
         return res.status(StatusCodes.CREATED).json({
-            user: newUser,
+            user: userResource,
             access_token: token
         });
 
@@ -49,9 +50,10 @@ export const login = async (req, res) => {
         }
         
         const token = user.createJWT();
-        
+        const userResource = { ...user.toObject() };
+        delete userResource.password;
         return res.status(StatusCodes.OK).json({
-            user,
+            user: userResource,
             access_token: token
         });
     } catch (error) {
